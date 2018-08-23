@@ -15,4 +15,5 @@ I forked from (https://github.com/xiongzihua/faceboxes)
 
 ## Other info
 pytorch 0.4
-https://github.com/ysduxx34/faceboxes/blob/master/picture/trainplot.png?raw=true
+
+![image](https://github.com/ysduxx34/faceboxes/blob/master/picture/trainplot.png?raw=true)
