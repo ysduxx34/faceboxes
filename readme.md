@@ -3,7 +3,7 @@
 
 Faceboxes is a SSD style object detector, it is designed for fast face detect, has a lightweight yet powerful network structure.
 
-## update
+## Statement
 
 I forked from [https://github.com/xiongzihua](https://github.com/xiongzihua/faceboxes)
 
@@ -13,7 +13,5 @@ I forked from [https://github.com/xiongzihua](https://github.com/xiongzihua/face
 ## TODO:
 1. Sheer Net to run pedestrain on mobile devices.
 
-## Info
-visdom  
-pytorch 0.4 
-torchvision 
+## Pytorch Info:
+pytorch 0.4
