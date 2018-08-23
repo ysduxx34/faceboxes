@@ -17,6 +17,7 @@ class DataEncoder:
 		aspect_ratios = ((1,2,4), (1,), (1,))
 		feature_map_sizes = (32, 16, 8)
 
+		# TODO: person detect density will less than  21
 		density = [[-3,-1,1,3],[-1,1],[0]] # density for output layer1
 		# density = [[0],[0],[0]] # density for output layer1
 		
@@ -33,9 +34,9 @@ class DataEncoder:
 				for j,ar in enumerate(aspect_ratios[i]):
 					if i == 0:
 						for dx,dy in itertools.product(density[j], repeat=2):
-							boxes.append((cx+dx/8.*s*ar, cy+dy/8.*s*ar, s*ar, s*ar))
+							boxes.append((cx+dx/8.*s*ar, cy+dy/8.*s*ar*3, s*ar, s*ar*3))
 					else:
-						boxes.append((cx, cy, s*ar, s*ar))
+						boxes.append((cx, cy, s*ar, s*ar*3))
 		
 		self.default_boxes = torch.Tensor(boxes)
 	
@@ -168,13 +169,10 @@ class DataEncoder:
 		max_iou, max_iou_index = iou.max(1) #为每一个bounding box不管IOU大小，都设置一个与之IOU最大的default_box
 		iou, max_index= iou.max(0) #每一个default_boxes对应到与之IOU最大的bounding box上
 		
-		#print(max(iou))
 		max_index.squeeze_(0)  # torch.LongTensor 21824
 		iou.squeeze_(0)
-		# print('boxes', boxes.size(), boxes, 'max_index', max_index)
 
 		max_index[max_iou_index] = torch.LongTensor(range(num_obj))
-
 
 		boxes = boxes[max_index] # [21824,4] 是图像label
 		variances = [0.1, 0.2]
@@ -184,11 +182,13 @@ class DataEncoder:
 		wh = torch.log(wh) / variances[1] # Variable
 		
 		inf_flag = wh.abs() > 10000
-		if(inf_flag.long().sum() is not 0):
-			print('inf_flag has true', wh, boxes)
-			print('org_boxes', boxes_org)
-			print('max_iou', max_iou, 'max_iou_index', max_iou_index)
-			raise 'inf error'
+		# print ("inf_flag.long().sum(): "+str(inf_flag.long().sum()))
+
+		# if(inf_flag.long().sum() is not 0):
+		# 	print('inf_flag has true', wh, boxes)
+		# 	print('org_boxes', boxes_org)
+		# 	print('max_iou', max_iou, 'max_iou_index', max_iou_index)
+		# 	raise 'inf error'
 
 		loc = torch.cat([cxcy, wh], 1) # [21824,4]
 		conf = classes[max_index] #其实都是1 [21824,]
@@ -203,11 +203,12 @@ class DataEncoder:
 
 		return loc,conf
 
-	def nms(self,bboxes,scores,threshold=0.5):
+	def nms(self,bboxes,scores,threshold=0.4):
 		'''
 		bboxes(tensor) [N,4]
 		scores(tensor) [N,]
 		'''
+		# print (bboxes.size())
 		x1 = bboxes[:,0]
 		y1 = bboxes[:,1]
 		x2 = bboxes[:,2]
@@ -249,10 +250,31 @@ class DataEncoder:
 		cxcy = loc[:,:2] * variances[0] * self.default_boxes[:,2:] + self.default_boxes[:,:2]
 		wh  = torch.exp(loc[:,2:] * variances[1]) * self.default_boxes[:,2:]
 		boxes = torch.cat([cxcy-wh/2,cxcy+wh/2],1) #[21824,4]
-		
-		conf[:,0] = 0.4
 
+		# ids = (conf[:,1].view(-1, 1) > 0.1).view(-1)
+		# # boxes = boxes.view(-1, 4)[ids, :]
+		# # conf = conf.view(-1, 2)[ids, :]
+
+		# # print(conf.size())
+		# # _, ids = conf[:, 1].max(0)
+		# # if ids.numel() > 1000:
+		# # 	ids = ids[:1000]
+
+		# boxes = boxes.view(-1, 4)[ids, :].view(-1, 4)
+		# conf = conf.view(-1, 2)[ids, :].view(-1, 2)
+
+		# keep = self.nms(boxes,conf[:, 1])
+		# ids = (conf[:,1].view(-1, 1)[keep] > 0.6).view(-1)
+
+		# return boxes.view(-1, 4)[keep].view(-1, 4)[ids, :], torch.ones((len(keep), 1))[ids], conf[:,1].view(-1, 1)[keep].view(-1, 1)[ids]
+
+		# print (conf[:, 0],conf[:,1])
+		conf[:,0] = 0.5 #Threshold
+
+		# print (boxes.size())
+		# print (conf.size())
 		max_conf, labels = conf.max(1) #[21842,1]
+		# print (labels)
 		# print(max_conf)
 		# print('labels', labels.long().sum())
 		if labels.long().sum() is 0:
@@ -260,13 +282,13 @@ class DataEncoder:
 			max_conf[slabel[0:5]] = sconf[0:5]
 			labels[slabel[0:5]] = 1
 
-		ids = labels.nonzero().squeeze(1)
-		# print('ids', ids)
-		# print('boxes', boxes.size(), boxes[ids])
+		ids = labels.nonzero().squeeze()
+		# print (labels[ids])
+		if torch.numel(ids) == 0:
+			return torch.zeros((0,)), torch.zeros((0,)), torch.zeros((0,))
+		keep = self.nms(boxes[ids].view(-1, 4),max_conf[ids])#.squeeze(1))
 
-		keep = self.nms(boxes[ids],max_conf[ids])#.squeeze(1))
-
-		return boxes[ids][keep], labels[ids][keep], max_conf[ids][keep]
+		return boxes[ids].view(-1, 4)[keep], labels[ids].view(-1, 1)[keep], max_conf[ids].view(-1, 1)[keep]
 
 if __name__ == '__main__':
 	dataencoder = DataEncoder()

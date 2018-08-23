@@ -40,6 +40,7 @@ class ListDataset(data.Dataset):
 			num_faces = int(splited[1])
 			box=[]
 			label=[]
+			# print (line)
 			for i in range(num_faces):
 				x = float(splited[2+5*i])
 				y = float(splited[3+5*i])
@@ -54,8 +55,10 @@ class ListDataset(data.Dataset):
 
 	def __getitem__(self,idx):
 		fname = self.fnames[idx]
+		# print ("fname:" + fname)
 		# print(os.path.join(self.root+fname))
 		img = cv2.imread(os.path.join(self.root+fname))
+		# print (img)
 		assert img is not None
 		
 		boxes = self.boxes[idx].clone()
@@ -106,6 +109,7 @@ class ListDataset(data.Dataset):
 		imh, imw, _ = im.shape
 		short_size = min(imw, imh)
 		while True:
+			# TODO: w = h: done;
 			mode = random.choice([None, 0.3, 0.5, 0.7, 0.9])
 			if mode is None:
 				boxes_uniform = boxes / torch.Tensor([imw,imh,imw,imh]).expand_as(boxes)
@@ -117,10 +121,57 @@ class ListDataset(data.Dataset):
 					imh, imw, _ = im.shape
 					short_size = min(imw,imh)
 					continue
-				selected_boxes = boxes.index_select(0, mask.nonzero().squeeze(1))
+				selected_boxes  = boxes.index_select(0, mask.nonzero().squeeze(1))
 				selected_labels = labels.index_select(0, mask.nonzero().squeeze(1))
 				return im, selected_boxes, selected_labels
-			
+
+				# TODO:人脸框不变形版本
+				# boxes  = selected_boxes
+				# labels = selected_labels
+				# w = short_size
+				# h = w
+                
+				# if imw>w:
+				# 	x = random.randrange(imw - w)
+				# else:
+				# 	x = 0
+				# if imh>h:
+				# 	y = random.randrange(imh - h)
+				# else:
+				# 	y = 0
+				# # x = random.randrange(imw - w)
+				# # y = random.randrange(imh - h)
+				# roi = torch.Tensor([[x, y, x+w, y+h]])
+
+				# center = (boxes[:,:2] + boxes[:,2:]) / 2
+				# roi2 = roi.expand(len(center), 4)
+				# mask = (center > roi2[:,:2]) & (center < roi2[:,2:])
+				# mask = mask[:,0] & mask[:,1]
+				# if not mask.any():
+				# 	continue
+				
+				# selected_boxes = boxes.index_select(0, mask.nonzero().squeeze(1))
+				# img = im[y:y+h,x:x+w,:]
+				# selected_boxes[:,0].add_(-x).clamp_(min=0, max=w)
+				# selected_boxes[:,1].add_(-y).clamp_(min=0, max=h)
+				# selected_boxes[:,2].add_(-x).clamp_(min=0, max=w)
+				# selected_boxes[:,3].add_(-y).clamp_(min=0, max=h)
+				# # print('croped')
+				
+				# boxes_uniform = selected_boxes / torch.Tensor([w,h,w,h]).expand_as(selected_boxes)
+				# boxwh = boxes_uniform[:,2:] - boxes_uniform[:,:2]
+				# mask = (boxwh[:,0] > self.small_threshold) & (boxwh[:,1] > self.small_threshold) 
+				# if not mask.any():
+				# 	print('crop image have none box bigger than small_threshold')
+				# 	im, boxes, labels = self.random_getim()
+				# 	imh, imw, _ = im.shape
+				# 	short_size = min(imw,imh)
+				# 	continue
+				# selected_boxes_selected = selected_boxes.index_select(0, mask.nonzero().squeeze(1))
+				# selected_labels = labels.index_select(0, mask.nonzero().squeeze(1))
+				# return img, selected_boxes_selected, selected_labels
+
+			# TODO:
 			for _ in range(10):
 				w = random.randrange(int(0.3*short_size), short_size)
 				h = w
@@ -193,8 +244,8 @@ class ListDataset(data.Dataset):
 		return img, boxes, labels
 
 if __name__ == '__main__':
-	file_root = '/home/lxg/codedata/aflw/'
-	train_dataset = ListDataset(root=file_root,list_file='box_label.txt',train=True,transform = [transforms.ToTensor()] )
+	file_root = ''
+	train_dataset = ListDataset(root=file_root,list_file='box_label_train.txt',train=True,transform = [transforms.ToTensor()] )
 	print('the dataset has %d image' % (len(train_dataset)))
 	for i in range(len(train_dataset)):
 		print(i)

@@ -7,6 +7,7 @@ import torch.nn.init as init
 import torch.nn.functional as F
 
 from torch.autograd import Variable
+import numpy as np 
 
 class MultiBoxLayer(nn.Module):
 	num_classes = 2
@@ -41,7 +42,10 @@ class MultiBoxLayer(nn.Module):
 			y_conf = y_conf.permute(0,2,3,1).contiguous()
 			y_conf = y_conf.view(N,-1,2)
 			y_confs.append(y_conf)
-			
+			# print (y_conf.size())
+
+		# print ("1: " + str(y_conf.size()))
 		loc_preds = torch.cat(y_locs,1)
 		conf_preds = torch.cat(y_confs,1)
+		# print (conf_preds.size())
 		return loc_preds,conf_preds
