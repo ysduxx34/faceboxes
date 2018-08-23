@@ -35,7 +35,7 @@ def detect_gpu(im):
     return boxes, probs
 
 def testVideo(file):
-    cap = cv2.VideoCapture("rtsp://admin:zhouxin1234@172.16.15.219:554/h264/ch1/sub/av_stream")#(0)#(file)
+    cap = cv2.VideoCapture(0)#(file)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT,720)
 
