@@ -13,7 +13,8 @@ I forked from (https://github.com/xiongzihua/faceboxes)
 ## TODO
 1. Sheer Net and run it on mobile devices.
 
+## Train Loss
+![image](https://github.com/ysduxx34/faceboxes/blob/master/picture/trainplot.png?raw=true)
+
 ## Other info
 pytorch 0.4
-
-![image](https://github.com/ysduxx34/faceboxes/blob/master/picture/trainplot.png?raw=true)
