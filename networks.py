@@ -55,10 +55,10 @@ class Inception(nn.Module):
 		return output
 
 
-class FaceBox(nn.Module):
+class PedestrainBox(nn.Module):
 	input_size = 1024
 	def __init__(self):
-		super(FaceBox, self).__init__()
+		super(PedestrainBox, self).__init__()
 
 		#model
 		self.conv1 = nn.Conv2d(3,24,kernel_size=7,stride=4,padding=3)
@@ -114,7 +114,7 @@ class FaceBox(nn.Module):
 		return loc_preds, conf_preds
 
 if __name__ == '__main__':
-	model = FaceBox()
+	model = PedestrainBox()
 	data = Variable(torch.randn(1,3,1024,1024)) 
 	loc, conf = model(data)
 	print('loc', loc.size())

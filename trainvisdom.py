@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 from torchvision import models
 from torch.autograd import Variable
 
-from networks import FaceBox
+from networks import PedestrainBox
 from multibox_loss import MultiBoxLoss
 from dataset import ListDataset
 
@@ -23,19 +23,18 @@ learning_rate = 0.001
 num_epochs = 300
 batch_size = 64
 
-net = FaceBox()
-if use_gpu:
-    net.cuda()
+net = PedestrainBox()
+# if use_gpu:
+#     net.cuda()
 
 # TODO: use two gpu parallel
-# device = 'cuda'
-# # net = net.to(device)
-# if device == 'cuda':
-#     net = torch.nn.DataParallel(net).cuda()
-#     cudnn.benchmark = True
+device = 'cuda'
+if device == 'cuda':
+    net = torch.nn.DataParallel(net).cuda()
+    cudnn.benchmark = True
 
 print('load model...')
-# net.load_state_dict(torch.load('weight/faceboxes_2.76.pt'))
+# net.load_state_dict(torch.load('weight/pedestrainboxes_2.76.pt'))
 
 criterion = MultiBoxLoss()
 
@@ -92,8 +91,6 @@ for epoch in range(num_epochs):
             vis.line(Y=np.array([total_loss / (i+1)]), X=np.array([num_iter]), 
                     win=win,
                     update='append')
-
-    # TODO:caculation Test Loss
     #val
     net.eval()
     total_loss_val = 0.
@@ -113,12 +110,10 @@ for epoch in range(num_epochs):
         else :
             total_loss_val += loss.data[0]
             count = count + 1
-        # print (loss.data[0])
             print ('loss.data: %.4f'  %(loss.data[0]))
 
     print ('count of val:  '+str(count))
     average_loss = total_loss_val / count
-    # print ('average_loss: '+str(average_loss))
     print ('average_loss: %.4f' 
          %(average_loss))
     if average_loss < min_loss :
@@ -126,15 +121,6 @@ for epoch in range(num_epochs):
         if not os.path.exists('weight/'):
             os.mkdir('weight')  
         print('saving model ...')  
-        torch.save(net.state_dict(),'weight/faceboxes.pt')
-
-    # if (i+1) % 5 == 0:
-    #     print ('Epoch [%d/%d], Iter [%d/%d] Loss: %.4f, average_loss: %.4f' 
-    #     %(epoch+1, num_epochs, i+1, len(train_loader), loss.data[0], total_loss / (i+1)))
-       
-    # if not os.path.exists('weight/'):
-    #     os.mkdir('weight')  
-    # print('saving model ...')  
-    # torch.save(net.state_dict(),'weight/faceboxes.pt')
+        torch.save(net.state_dict(),'weight/pedestrainboxes.pt')
     
 

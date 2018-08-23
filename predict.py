@@ -1,4 +1,4 @@
-from networks import FaceBox
+from networks import PedestrainBox
 from encoderl import DataEncoder
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
@@ -135,8 +135,8 @@ def getFddbList(path, file_name):
     print('get fddb list done')
 
 if __name__ == '__main__':
-    net = FaceBox()
-    net.load_state_dict(torch.load('weight/faceboxes.pt', map_location=lambda storage, loc:storage))
+    net = PedestrainBox()
+    net.load_state_dict(torch.load('weight/pedestrainboxes.pt', map_location=lambda storage, loc:storage))
     
     if use_gpu:
         net.cuda()

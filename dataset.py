@@ -28,7 +28,7 @@ class ListDataset(data.Dataset):
 		self.fnames = []
 		self.boxes = []
 		self.labels = []
-		self.small_threshold = 10./self.image_size  # face that small than threshold will be ignored
+		self.small_threshold = 10./self.image_size  # pedestrain that small than threshold will be ignored
 		self.data_encoder = DataEncoder()
 
 		with open(list_file) as f:
@@ -37,11 +37,11 @@ class ListDataset(data.Dataset):
 		for line in lines:
 			splited = line.strip().split()
 			self.fnames.append(splited[0])
-			num_faces = int(splited[1])
+			num_persons = int(splited[1])
 			box=[]
 			label=[]
 			# print (line)
-			for i in range(num_faces):
+			for i in range(num_persons):
 				x = float(splited[2+5*i])
 				y = float(splited[3+5*i])
 				w = float(splited[4+5*i])

@@ -159,7 +159,6 @@ class DataEncoder:
 		default_boxes = self.default_boxes #[21824,4]
 		num_default_boxes = default_boxes.size(0)
 		num_obj=boxes.size(0)  #人脸个数
-		#print('num_faces {}'.format(num_obj))
 		iou = self.iou(
 			boxes,
 			torch.cat([default_boxes[:,:2] - default_boxes[:,2:]/2,
@@ -194,7 +193,7 @@ class DataEncoder:
 		conf = classes[max_index] #其实都是1 [21824,]
 		conf[iou < threshold] = 0 #iou小的设为背景
 		conf[max_iou_index] = 1 # 这么设置有问题，loc loss 会导致有inf loss，从而干扰训练，
-								# 去掉后，损失降的更稳定些，是因为widerFace数据集里有的label
+								# 去掉后，损失降的更稳定些，是因为widerPedestrain数据集里有的label
 								# 做的宽度为0，但是没有被滤掉，是因为max(1)必须为每一个object选择一个
 								# 与之对应的default_box，需要修改数据集里的label。
 		# ('targets', Variable containing:
