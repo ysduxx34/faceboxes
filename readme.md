@@ -7,7 +7,11 @@ Faceboxes is a SSD style object detector, it is designed for fast face detect, h
 
 I forked from [https://github.com/xiongzihua](https://github.com/xiongzihua/faceboxes)
 
+Done:
 1. just modified some code to perform pedestrain detect, trained on WiderPedestrain dataset https://competitions.codalab.org/competitions/19118
+
+TODO:
+
 
 ## usage
 visdom  
