@@ -1,4 +1,4 @@
-# Pedestrain Detect Use Faceboxes
+# Pedestrain Detect Use Faceboxes Net
 [faceBoxes: a cpu real-time face detector with hight accuracy](https://arxiv.org/abs/1708.05234)  
 
 Faceboxes is a SSD style object detector, it is designed for fast face detect, has a lightweight yet powerful network structure.
